@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define WORDSIZE 20
 #define LEXSIZE 26
@@ -102,8 +103,52 @@ void swap(char **arr, int pos_a, int pos_b)
     return;
 }
 
+void counting_sort(int *arr, int *ans, int maxval, int len_arr)
+{
+    int *c = (int *)calloc(maxval + 1, sizeof(int));
+
+    for (int i = 0; i < len_arr; i++)
+        c[arr[i]] += 1;
+
+    for (int i = 1; i <= maxval; i++)
+        c[i] += c[i - 1];
+
+    for (int i = len_arr - 1; i >= 0; i--)
+    {
+        printf("index to ans = %d\n", c[arr[i]]);
+        ans[c[arr[i]] - 1] = arr[i];
+        c[arr[i]] -= 1;
+    }
+
+    return;
+}
+
 int main()
 {
+    int len_nums;
 
+    scanf("%d", &len_nums);
+
+    int maxval = 0;
+    int *nums = (int *)malloc(len_nums * sizeof(int));
+    int *ans = (int *)malloc(len_nums * sizeof(int));
+    // scanning int array
+    for (int k = 0; k < len_nums; k++)
+    {
+        scanf("%d", &nums[k]);
+        if (nums[k] > maxval)
+            maxval = nums[k];
+    }
+
+    for (int i = 0; i < len_nums; i++)
+        printf("%d ", nums[i]);
+
+    printf("\n");
+    counting_sort(nums, ans, maxval, len_nums);
+
+    for (int i = 0; i < len_nums; i++)
+        printf("%d ", ans[i]);
+
+    printf("\n");
     return 0;
 }
