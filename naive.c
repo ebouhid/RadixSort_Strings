@@ -91,6 +91,18 @@ void counting_sort(char **arr, char **ans, char *key, char maxval, int len_arr, 
     return;
 }
 
+/*
+void radix_sort(char **arr, char **ans, char *key, int len_arr, int largest_strlen)
+parameters:
+- arr: array to be sorted (char**)
+- ans: pointer to sorted array (char**)
+- key: sorting key (char*)
+- len_arr: size of arr (int)
+- largest_strlen: size of the largest string / number of digits (int)
+
+returns:
+none
+*/
 void radix_sort(char **arr, char **ans, char *key, int len_arr, int largest_strlen)
 {
     char **aux = (char **)malloc(len_arr * sizeof(char *));
