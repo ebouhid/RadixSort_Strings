@@ -51,6 +51,18 @@ int get_c_idx(char *key, char character)
     return -1; // should not happen
 }
 
+/*
+void counting_sort(char **arr, char **ans, char *key, char maxval, int len_arr, int radix)
+parameters:
+- arr: array to be sorted (char**)
+- ans: pointer to sorted array (char**)
+- key: sorting key (char*)
+- maxval: originally, this parameter is the largest element in arr, however, for string
+applications it is the size of the sorting key (int)
+- radix: digit/position of the string to be sorted (int)
+
+returns: none
+*/
 void counting_sort(char **arr, char **ans, char *key, char maxval, int len_arr, int radix)
 {
     int *c = (int *)calloc(maxval + 1, sizeof(int));
@@ -88,10 +100,14 @@ void radix_sort(char **arr, char **ans, char *key, int len_arr, int largest_strl
         counting_sort(aux, ans, key, 27, len_arr, radix); // we'll have to update the maxval parameter on this call later
         copy_arr(ans, aux, len_arr);
     }
+
+    return;
 }
 
 /*
- * todo: documentation
+ * rectify_str(char *str): converts all uppercase characters to lowercase
+ parameters:
+- str: string to be rectified (char*)
  */
 void rectify_str(char *str)
 {
@@ -165,6 +181,7 @@ int main()
         }
     }
 
+    // calling sort function and printing array
     radix_sort(words, ans, key, len_words, largest_len);
     print_arr(ans, len_words, 0);
     return 0;
