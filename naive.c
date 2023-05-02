@@ -196,5 +196,14 @@ int main()
     // calling sort function and printing array
     radix_sort(words, ans, key, len_words, largest_len);
     print_arr(ans, len_words, 0);
+
+    // free up memory
+    for (int i = 0; i < len_words; i++)
+    {
+        free(words[i]);
+    }
+    free(words);
+    free(ans);
+    free(key);
     return 0;
 }
