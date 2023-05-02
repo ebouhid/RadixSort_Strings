@@ -25,130 +25,114 @@ void print_arr(char **arr, int len)
     return;
 }
 
-/*
-get_char_ranking(char character, char *key, int key_len)
-parameters:
-- character: character whose ranking is desired to know (char)
-- key: array of characters in the desired lexicographic order (char*)
-- key_len: lenght of "key" array
-
-returns:
-* character ranking
-*/
-int get_char_ranking(char character, char *key, int key_len)
+void copy_arr(char **src, char **dst, int size)
 {
-    int i = 0;
-    while (i < key_len)
-    {
-        if (character == key[i])
-            return i;
-        i++;
-    }
-
-    return -1;
-}
-
-/*
-greater_than(char *a, char *b, char *key, int key_len)
-parameters:
-- a, b: strings to be compared(char*)
-- key: array of characters in the desired lexicographic order (char*)
-- key_len: length of "key" array
-
-returns:
-* 1 if a is considered greater than b according to the supplied lexicographic order or a equals b
-* 0 otherwise
-*/
-int greater_than(char *a, char *b, char *key, int key_len)
-{
-    int len_a = strlen(a);
-    int len_b = strlen(b);
-    int i = 0;
-
-    while (i < len_a && i < len_b)
-    {
-        int rank_a = get_char_ranking(a[i], key, key_len);
-        int rank_b = get_char_ranking(b[i], key, key_len);
-
-        if (rank_a > rank_b)
-            return 1;
-        else if (rank_a < rank_b)
-            return 0;
-        // if rank_a == rank_b, loop keeps going
-        i++;
-    }
-
-    if (len_a < len_b)
-        return 0;
-
-    return 1;
-}
-
-/*
-swap(char **arr, int pos_a, int pos_b)
-parameters:
-- arr: array of strings in which the swap will occur (char**)
-- pos_a: index of first element (int)
-- pos_b: index of second element (int)
-
-returns:
-none
-*/
-void swap(char **arr, int pos_a, int pos_b)
-{
-    char *aux = arr[pos_a];
-    arr[pos_a] = arr[pos_b];
-    arr[pos_b] = aux;
-
+    for (int i = 0; i < size; i++)
+        dst[i] = src[i];
     return;
 }
 
-void counting_sort(int *arr, int *ans, int maxval, int len_arr)
+int get_c_idx(char *key, char character)
+{
+    for (int i = 0; i < strlen(key); i++)
+    {
+        if (key[i] == character)
+            return i; // early return
+    }
+
+    return -1; // should not happen
+}
+
+void counting_sort(char **arr, char **ans, char *key, char maxval, int len_arr, int radix)
 {
     int *c = (int *)calloc(maxval + 1, sizeof(int));
 
     for (int i = 0; i < len_arr; i++)
-        c[arr[i]] += 1;
+    {
+        int c_idx = get_c_idx(key, arr[i][radix]);
+        c[c_idx] += 1;
+    }
 
     for (int i = 1; i <= maxval; i++)
         c[i] += c[i - 1];
 
     for (int i = len_arr - 1; i >= 0; i--)
     {
-        printf("index to ans = %d\n", c[arr[i]]);
-        ans[c[arr[i]] - 1] = arr[i];
-        c[arr[i]] -= 1;
+        int c_idx = get_c_idx(key, arr[i][radix]);
+        ans[c[c_idx] - 1] = arr[i];
+        c[c_idx] -= 1;
     }
 
     return;
 }
 
+void radix_sort(char **arr, char **ans, char *key, int len_arr, int largest_strlen)
+{
+    char **aux = (char **)malloc(len_arr * sizeof(char *));
+    copy_arr(arr, aux, len_arr);
+    for (int radix = largest_strlen - 1; radix >= 0; radix--)
+    {
+        counting_sort(aux, ans, key, (int)'z', len_arr, radix); // we'll have to update the maxval parameter on this call later
+        copy_arr(ans, aux, len_arr);
+    }
+}
+
+/*
+ * todo: documentation
+ */
+void rectify_str(char *str)
+{
+    /*
+     * acceptable range (lowercase and blankspaces): [97;122] U [32]
+     * rectifiable range (uppercase): [65;90]
+     */
+    for (int i = 0; i < strlen(str); i++)
+    {
+
+        // rectifiable range
+        if ((int)str[i] >= 65 && (int)str[i] <= 90)
+            str[i] += 32;
+    }
+    return;
+}
+
 int main()
 {
-    int len_nums;
+    int len_words;
+    char *key = " abcdefghijklmnopqrstuvwxyz";
+    scanf("%d", &len_words);
 
-    scanf("%d", &len_nums);
+    char **words = (char **)malloc(len_words * sizeof(char *));
+    char **ans = (char **)malloc(len_words * sizeof(char *));
 
-    int maxval = 0;
-    int *nums = (int *)malloc(len_nums * sizeof(int));
-    int *ans = (int *)malloc(len_nums * sizeof(int));
-    // scanning int array
-    for (int k = 0; k < len_nums; k++)
+    // scanning str array
+    int largest_len = 0;
+    for (int k = 0; k < len_words; k++)
     {
-        scanf("%d", &nums[k]);
-        if (nums[k] > maxval)
-            maxval = nums[k];
+        char *bufword = (char *)malloc(WORDSIZE * sizeof(char));
+        scanf("%s", bufword);
+        rectify_str(bufword);
+        if (strlen(bufword) > largest_len)
+            largest_len = strlen(bufword);
+        words[k] = bufword;
     }
 
-    for (int i = 0; i < len_nums; i++)
-        printf("%d ", nums[i]);
+    // filling in blankspaces
+    for (int k = 0; k < len_words; k++)
+    {
+        int current_len = strlen(words[k]);
+        if (current_len < largest_len)
+        {
+            for (int i = current_len; i < largest_len; i++)
+            {
+                words[k][i] = (char)32;
+            }
+        }
+    }
 
-    printf("\n");
-    counting_sort(nums, ans, maxval, len_nums);
+    // print_arr(words, len_words);
 
-    for (int i = 0; i < len_nums; i++)
-        printf("%d ", ans[i]);
-
-    printf("\n");
+    radix_sort(words, ans, key, len_words, largest_len);
+    print_arr(ans, len_words);
     return 0;
 }
