@@ -3,25 +3,33 @@
 #include <string.h>
 
 #define WORDSIZE 20
-#define LEXSIZE 26
+#define LEXSIZE 27
 
 /*
 print_arr(char **arr, int len)
 parameters:
 - arr: string array to be printed (char**)
 - len: size of arr (int)
+- single_line: boolean to determine if each element is
+separated with a space or a newline
 
 returns:
 none
 */
-void print_arr(char **arr, int len)
+void print_arr(char **arr, int len, int single_line)
 {
-    for (int i = 0; i < len; i++)
+    if (single_line)
     {
-        printf("%s ", arr[i]);
+        for (int i = 0; i < len; i++)
+        {
+            printf("%s ", arr[i]);
+        }
+        printf("\n");
+        return;
     }
-    printf("\n");
 
+    for (int i = 0; i < len; i++)
+        printf("%s\n", arr[i]);
     return;
 }
 
@@ -56,6 +64,11 @@ void counting_sort(char **arr, char **ans, char *key, char maxval, int len_arr, 
     for (int i = 1; i <= maxval; i++)
         c[i] += c[i - 1];
 
+    // print counting array
+    for (int i = 0; i < maxval; i++)
+        printf("%d ", c[i]);
+    printf("\n");
+
     for (int i = len_arr - 1; i >= 0; i--)
     {
         int c_idx = get_c_idx(key, arr[i][radix]);
@@ -72,7 +85,7 @@ void radix_sort(char **arr, char **ans, char *key, int len_arr, int largest_strl
     copy_arr(arr, aux, len_arr);
     for (int radix = largest_strlen - 1; radix >= 0; radix--)
     {
-        counting_sort(aux, ans, key, (int)'z', len_arr, radix); // we'll have to update the maxval parameter on this call later
+        counting_sort(aux, ans, key, 27, len_arr, radix); // we'll have to update the maxval parameter on this call later
         copy_arr(ans, aux, len_arr);
     }
 }
@@ -98,24 +111,46 @@ void rectify_str(char *str)
 
 int main()
 {
+    int c; // clear buffer throwaway
     int len_words;
-    char *key = " abcdefghijklmnopqrstuvwxyz";
+    char *key = (char *)malloc(LEXSIZE * sizeof(char));
+    key[0] = (char)32; // shorter words first
+
+    // scanning amount of words
     scanf("%d", &len_words);
+    // clear buffer
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        // do nothing
+    }
 
     char **words = (char **)malloc(len_words * sizeof(char *));
     char **ans = (char **)malloc(len_words * sizeof(char *));
 
-    // scanning str array
+    // scanning sorting key
+    for (int i = 1; i < LEXSIZE; i++)
+        scanf("%c", &key[i]);
+    // clear buffer
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        // do nothing
+    }
+
+    // scanning word array
     int largest_len = 0;
     for (int k = 0; k < len_words; k++)
     {
         char *bufword = (char *)malloc(WORDSIZE * sizeof(char));
         scanf("%s", bufword);
         rectify_str(bufword);
+        printf("%s.\n", bufword); // print rectified words
         if (strlen(bufword) > largest_len)
             largest_len = strlen(bufword);
         words[k] = bufword;
     }
+
+    // printing largest_len
+    printf("%d\n", largest_len);
 
     // filling in blankspaces
     for (int k = 0; k < len_words; k++)
@@ -130,9 +165,7 @@ int main()
         }
     }
 
-    // print_arr(words, len_words);
-
     radix_sort(words, ans, key, len_words, largest_len);
-    print_arr(ans, len_words);
+    print_arr(ans, len_words, 0);
     return 0;
 }
